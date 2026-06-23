@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+<title>Smart ทันหนี้ — Staff Portal</title>
+<style>
+/* ── TOKENS ── */
+:root {
+  --navy:#00213F; --ktb:#00A4E4; --ktb-d:#0079B8; --ktb-bg:#E3F4FC;
+  --bg:#F0F7FF; --panel:#fff; --soft:#E8F4FD; --line:#D0E8F6; --line2:#b8daf2;
+  --ink:#00213F; --text:#2C4A60; --muted:#6B90A8;
+  --ok-bg:#D4F5E6; --ok-bd:#1A9E5A; --ok-tx:#0D5C33;
+  --warn-bg:#FEF3CD; --warn-bd:#F0A500; --warn-tx:#7A5000;
+  --c3-bg:#FDECEA; --c3-bd:#E05043; --c3-tx:#7A1F18;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"TH Sarabun New","Sarabun","Noto Sans Thai",Tahoma,Arial,sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.45;}
+
+/* ── NAV ── */
+.nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:52px;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.nav-brand{display:flex;align-items:center;gap:10px;color:#fff;font-size:16px;font-weight:700;
+  cursor:pointer;text-decoration:none;border:none;background:none;font-family:inherit;}
+.nav-badge{background:var(--ktb);color:#fff;font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:4px;letter-spacing:.3px;}
+.nav-right{color:rgba(255,255,255,.75);font-size:13px;letter-spacing:.3px;}
+.nav-right strong{color:#fff;}
+
+/* ── PAGE ── */
+.page{max-width:1140px;margin:0 auto;padding:22px 20px 60px;}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;
+  flex-wrap:wrap;gap:10px;}
+.pt{font-size:21px;font-weight:700;color:var(--ink);}
+.ps{font-size:12px;color:var(--muted);margin-top:3px;}
+.rbtn{display:flex;align-items:center;gap:6px;background:var(--panel);
+  border:1px solid var(--line);color:var(--ktb-d);font-size:13px;font-weight:700;
+  padding:7px 14px;border-radius:8px;cursor:pointer;font-family:inherit;transition:background .12s;}
+.rbtn:hover{background:var(--soft);}
+
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:12px 16px;border-top:3px solid transparent;}
+.sc.c1{border-top-color:var(--ktb);}   .sc.c2{border-top-color:#F0A500;}
+.sc.c3{border-top-color:#1A9E5A;}      .sc.c4{border-top-color:#8B5CF6;}
+.sc.c5{border-top-color:#E05043;}
+.sl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.2px;}
+.sv{font-size:24px;font-weight:700;color:var(--ink);margin:2px 0 1px;}
+.sh{font-size:11px;color:var(--muted);}
+
+/* ── FILTERS ── */
+.filters{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:13px 16px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.2px;text-transform:uppercase;}
+.fg input,.fg select{padding:7px 10px;border:1px solid var(--line);border-radius:7px;
+  font-size:13.5px;font-family:inherit;background:var(--panel);color:var(--ink);
+  outline:none;transition:border .12s;}
+.fg input:focus,.fg select:focus{border-color:var(--ktb);}
+.fg.grow{flex:1;min-width:180px;}
+.clear-btn{padding:7px 14px;border:1px solid var(--line);border-radius:7px;
+  background:var(--panel);color:var(--muted);font-size:13px;font-family:inherit;
+  cursor:pointer;transition:all .12s;}
+.clear-btn:hover{background:var(--soft);color:var(--ktb-d);border-color:var(--ktb);}
+.filter-count{font-size:12px;color:var(--muted);margin-left:auto;align-self:center;white-space:nowrap;}
+
+/* ── TABLE ── */
+.twrap{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+col.cno  {width:4%;}  col.cname{width:11%;} col.csubj{width:20%;}
+col.cdebt{width:10%;} col.ccls {width:7%;} col.cocc {width:10%;}
+col.cdate{width:9%;} col.ccyc {width:7%;} col.cpol {width:9%;}
+col.cnac {width:6%;}  col.cst  {width:10%;}
+thead th{background:var(--soft);color:var(--muted);font-size:11px;font-weight:700;
+  text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);
+  white-space:nowrap;cursor:pointer;user-select:none;letter-spacing:.2px;text-transform:uppercase;}
+thead th:hover{color:var(--ktb-d);}
+thead th.sorted{color:var(--ktb-d);}
+thead th.sorted::after{content:" ▾";}
+thead th.sorted.asc::after{content:" ▴";}
+tbody td{padding:10px 10px;border-bottom:1px solid var(--line);font-size:13.5px;
+  color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{cursor:pointer;transition:background .1s;}
+tbody tr:hover td{background:var(--soft);}
+tbody tr.st-new td:first-child{border-left:4px solid #F0A500;padding-left:6px;}
+tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
+.empty-row{text-align:center;padding:44px;color:var(--muted);font-size:14px;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;
+  border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.bn{background:var(--warn-bg);color:var(--warn-tx);border:1px solid var(--warn-bd);}
+.bd{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-bd);}
+.bok{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-bd);}
+.bwn{background:var(--warn-bg);color:var(--warn-tx);border:1px solid var(--warn-bd);}
+.bdot{width:6px;height:6px;border-radius:50%;}
+.bdot-n{background:#F0A500;} .bdot-d{background:#1A9E5A;}
+.c3tag{display:inline-block;background:var(--c3-bg);color:var(--c3-tx);
+  border:1px solid var(--c3-bd);border-radius:4px;padding:1px 5px;font-size:11px;font-weight:700;}
+
+/* ── DETAIL OVERLAY ── */
+.overlay{display:none;position:fixed;inset:0;z-index:200;}
+.overlay.open{display:flex;flex-direction:column;}
+.dpanel{background:var(--bg);display:flex;flex-direction:column;height:100%;width:100%;}
+
+/* detail header */
+.dhead{background:var(--navy);display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;height:52px;flex-shrink:0;gap:14px;}
+.dhead-l{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.back{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  color:#fff;font-size:12px;font-weight:700;padding:5px 12px;border-radius:6px;
+  cursor:pointer;font-family:inherit;flex-shrink:0;transition:background .12s;}
+.back:hover{background:rgba(255,255,255,.22);}
+.dhead-title{min-width:0;flex:1;}
+.dcust{color:#fff;font-size:16px;font-weight:700;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.dmeta-sub{color:rgba(255,255,255,.55);font-size:11.5px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.dhead-r{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.tbtn{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;
+  font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:background .12s;}
+.tbtn-done{background:#1A9E5A;color:#fff;}
+.tbtn-done:hover{background:#158048;}
+.tbtn-reset{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28)!important;}
+.tbtn-reset:hover{background:rgba(255,255,255,.24);}
+
+/* detail body */
+.dbody{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+/* key stats strip */
+.dstats{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line);flex-shrink:0;}
+.dst{background:var(--panel);padding:11px 20px;display:flex;flex-direction:column;gap:2px;
+  border-right:1px solid var(--line);border-top:3px solid transparent;}
+.dst:first-child{border-top-color:var(--ktb);}
+.dst:nth-child(2){border-top-color:#E05043;}
+.dst:nth-child(3){border-top-color:#8B5CF6;}
+.dst:last-child{border-top-color:#1A9E5A;border-right:none;}
+.dst-label{font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.2px;text-transform:uppercase;}
+.dst-value{font-size:20px;font-weight:700;color:var(--ink);margin-top:1px;}
+
+/* meta info bar */
+.dmeta-strip{background:var(--soft);border-bottom:1px solid var(--line);
+  padding:8px 20px;display:flex;gap:28px;flex-wrap:wrap;flex-shrink:0;align-items:center;}
+.dmi{display:flex;flex-direction:column;gap:1px;}
+.dmi-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.2px;text-transform:uppercase;}
+.dmi-value{font-size:13px;font-weight:600;color:var(--ink);}
+
+/* tab navigation */
+.dtabs{background:var(--panel);border-bottom:1px solid var(--line);
+  padding:0 16px;display:flex;gap:0;flex-shrink:0;overflow-x:auto;}
+.dtab{border:none;background:transparent;padding:11px 18px;font-size:13.5px;font-weight:600;
+  color:var(--muted);cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;
+  white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.dtab:hover{color:var(--ktb-d);background:var(--soft);}
+.dtab.active{color:var(--ktb-d);border-bottom-color:var(--ktb);}
+
+/* scrollable tab content */
+.dtab-body{flex:1;overflow-y:auto;padding:20px;background:var(--bg);}
+
+/* cards inside tab content */
+.dcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  margin-bottom:16px;overflow:hidden;}
+.dcard:last-child{margin-bottom:0;}
+.dcard-head{background:var(--soft);color:var(--ink);font-size:14px;font-weight:700;
+  padding:10px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;}
+.dcard-body{padding:16px;}
+.dcard-count{font-size:12px;font-weight:600;color:var(--ktb-d);background:var(--ktb-bg);
+  padding:2px 10px;border-radius:999px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:var(--navy);color:#fff;padding:9px 22px;border-radius:999px;
+  font-size:14px;font-weight:700;z-index:999;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+.foot{margin-top:16px;text-align:center;font-size:12px;color:var(--muted);}
+
+@media(max-width:860px){
+  .stats{grid-template-columns:repeat(3,1fr);}
+  .dstats{grid-template-columns:repeat(2,1fr);}
+  col.cocc,col.ccyc{width:0;} .hide-sm{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-brand" onclick="showList()">
+    <span class="nav-badge">SMART</span>ระบบติดตามคำขอปรับโครงสร้างหนี้
+  </button>
+  <div class="nav-right"><strong>Smart ทันหนี้</strong>&nbsp;Reporting System</div>
+</nav>
+
+<!-- LIST PAGE -->
+<div id="list-page" class="page">
+  <div class="ph">
+    <div>
+      <div class="pt">คำขอปรับโครงสร้างหนี้</div>
+      <div class="ps" id="last-updated">กำลังโหลด…</div>
+    </div>
+    <button class="rbtn" onclick="loadCases()">⟳ รีเฟรช</button>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats">
+    <div class="sc c1"><div class="sl">คำขอทั้งหมด</div><div class="sv" id="s-total">—</div><div class="sh">รายการในระบบ</div></div>
+    <div class="sc c2"><div class="sl">ยังไม่ดำเนินการ</div><div class="sv" id="s-new">—</div><div class="sh">รอการติดต่อ</div></div>
+    <div class="sc c3"><div class="sl">ติดต่อแล้ว</div><div class="sv" id="s-done">—</div><div class="sh">ดำเนินการแล้ว</div></div>
+    <div class="sc c4"><div class="sl">สอดคล้องนโยบาย</div><div class="sv" id="s-pol">—</div><div class="sh">policy_compliant</div></div>
+    <div class="sc c5"><div class="sl">ยอดหนี้รวม (ล้านบาท)</div><div class="sv" id="s-debt">—</div><div class="sh">total_outstanding</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <div class="fg grow">
+      <label>ค้นหา</label>
+      <input type="text" id="f-q" placeholder="ชื่อ, CIF, เรื่องที่ขอ, อาชีพ, Session ID…" oninput="render()">
+    </div>
+    <div class="fg">
+      <label>วันบันทึก (เริ่ม)</label>
+      <input type="date" id="f-df" onchange="render()">
+    </div>
+    <div class="fg">
+      <label>วันบันทึก (ถึง)</label>
+      <input type="date" id="f-dt" onchange="render()">
+    </div>
+    <div class="fg">
+      <label>รอบบัญชี</label>
+      <select id="f-cycle" onchange="render()"><option value="">ทั้งหมด</option></select>
+    </div>
+    <div class="fg">
+      <label>C-Class</label>
+      <select id="f-class" onchange="render()"><option value="">ทั้งหมด</option></select>
+    </div>
+    <div class="fg">
+      <label>สถานะ</label>
+      <select id="f-status" onchange="render()">
+        <option value="">ทั้งหมด</option>
+        <option value="ยังไม่ดำเนินการ">ยังไม่ดำเนินการ</option>
+        <option value="ติดต่อแล้ว">ติดต่อแล้ว</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>นโยบาย</label>
+      <select id="f-policy" onchange="render()">
+        <option value="">ทั้งหมด</option>
+        <option value="1">สอดคล้อง</option>
+        <option value="0">ต้องตรวจสอบ</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>ยอดหนี้รวม (บาท)</label>
+      <select id="f-debt" onchange="render()">
+        <option value="">ทั้งหมด</option>
+        <option value="lt500">น้อยกว่า 500,000</option>
+        <option value="500to1m">500,000 – 1,000,000</option>
+        <option value="gt1m">มากกว่า 1,000,000</option>
+      </select>
+    </div>
+    <button class="clear-btn" onclick="clearFilters()">✕ ล้างตัวกรอง</button>
+    <span class="filter-count" id="f-count"></span>
+  </div>
+
+  <!-- TABLE -->
+  <div class="twrap">
+    <table>
+      <colgroup>
+        <col class="cno"><col class="cname"><col class="csubj">
+        <col class="cdebt"><col class="ccls"><col class="cocc">
+        <col class="cdate"><col class="ccyc"><col class="cpol">
+        <col class="cnac"><col class="cst">
+      </colgroup>
+      <thead><tr>
+        <th onclick="sortBy('id')">#</th>
+        <th onclick="sortBy('customer_name')">ชื่อลูกค้า</th>
+        <th onclick="sortBy('request_subject')">เรื่องที่ขอ</th>
+        <th onclick="sortBy('total_outstanding')" style="text-align:right">ยอดหนี้รวม</th>
+        <th onclick="sortBy('summary_c_class')">C-Class</th>
+        <th onclick="sortBy('occupation')" class="hide-sm">อาชีพ</th>
+        <th onclick="sortBy('saved_at')">วันบันทึก</th>
+        <th onclick="sortBy('acc_mdata')" class="hide-sm">รอบบัญชี</th>
+        <th onclick="sortBy('policy_compliant')">นโยบาย</th>
+        <th onclick="sortBy('account_count')" style="text-align:center">บัญชี</th>
+        <th onclick="sortBy('review_status')">สถานะ</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="foot" id="foot-info"></div>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="dpanel">
+
+    <!-- header bar -->
+    <div class="dhead">
+      <div class="dhead-l">
+        <button class="back" onclick="closeDetail()">← กลับ</button>
+        <div class="dhead-title">
+          <div class="dcust" id="d-name">—</div>
+          <div class="dmeta-sub" id="d-meta">—</div>
+        </div>
+      </div>
+      <div class="dhead-r">
+        <span class="badge" id="d-badge"></span>
+        <button class="tbtn" id="d-toggle" onclick="toggleStatus()"></button>
+      </div>
+    </div>
+
+    <div class="dbody">
+      <!-- key figures strip -->
+      <div class="dstats" id="d-stats"></div>
+
+      <!-- meta info bar -->
+      <div class="dmeta-strip" id="d-metastrip"></div>
+
+      <!-- tab nav -->
+      <div class="dtabs">
+        <button class="dtab active" data-dtab="overview" onclick="switchDTab(this)">ภาพรวม</button>
+        <button class="dtab" data-dtab="customer" onclick="switchDTab(this)">ข้อมูลลูกค้า</button>
+        <button class="dtab" data-dtab="loans" onclick="switchDTab(this)">สินเชื่อและหลักประกัน</button>
+        <button class="dtab" data-dtab="reasons" onclick="switchDTab(this)">เหตุผลประกอบการพิจารณา</button>
+        <button class="dtab" data-dtab="opinion" onclick="switchDTab(this)">ความเห็น</button>
+      </div>
+
+      <!-- scrollable tab content -->
+      <div class="dtab-body" id="d-tabcontent"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════════════════════════════════════
+const CFG = {
+  url: 'https://zrkrivgfgtopnluldkam.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpya3JpdmdmZ3RvcG5sdWxka2FtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODYzNzUwNSwiZXhwIjoyMDk0MjEzNTA1fQ.UODWZk7Dw6fCYRzjNRjFB4OC9uZDdsWvotU4VpqQtyk',
+};
+const USE_MOCK = false;
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MOCK DATA  (fallback if Supabase unreachable)
+// ════════════════════════════════════════════════════════════════════════════
+const MOCK = [
+  {
+    id: 1,
+    session_id: '457f',
+    customer_id: '1210003',
+    saved_at: '2026-06-23T09:40:26Z',
+    timestamp_workflow: '2026-06-23T09:40:26.117Z',
+    unit_name: 'ระบบ smart ทันหนี้', unit_code: 'SM001',
+    staff_name: 'ระบบ smart ทันหนี้', staff_phone: '02-111-1111',
+    received_date: '2026-06-23', report_date: '2026-06-23',
+    customer_name: 'ซี', cif: '1210003', citizen_id: null,
+    occupation: 'ข้าราชการ',
+    request_type: 'ขอเปลี่ยนแปลงเงื่อนไขการผ่อนชำระ',
+    request_subject: 'ขอรวมหนี้และเปิดสินเชื่อใหม่ภายใต้มาตรการ MOU',
+    request_objective: 'ลูกค้าประสงค์ขอรวมหนี้สินเชื่อส่วนบุคคล 2 บัญชี ยอดรวม 102,000 บาท เข้าเป็นสินเชื่อส่วนบุคคลอเนกประสงค์ภายใต้ MOU ใหม่ อัตราดอกเบี้ย 6.00% ต่อปี โดยมีวัตถุประสงค์เพื่อลดภาระค่างวดรายเดือนจากเดิม 5,100 บาท เหลือ 3,200 บาท',
+    policy_compliant: true,
+    acc_mdata: '202603',
+    acc_table: [
+      { type:'สินเชื่อส่วนบุคคล', credit_limit:500000, outstanding:320000, c_class:'C1', interest_rate:'6.00%', start_date:'2021-11-01', end_date:'2030-06-30', collateral_type:null, collateral_value:null, _original:{'ประเภท':'สินเชื่อส่วนบุคคล','วงเงิน':'500,000','ยอดหนี้':'320,000','C_Class':'C1','อัตราดอกเบี้ย':'6.00%','วันเริ่มสัญญา':'01/11/64','วันครบกำหนดสัญญา':'30/06/73','ประเภทหลักประกัน':'NA','ราคาประเมินหลักประกัน':'NA'} },
+      { type:'สินเชื่อดิจิตอลส่วนบุคคล', credit_limit:150000, outstanding:90000, c_class:'C1', interest_rate:'13.00%', start_date:'2023-08-01', end_date:'2029-06-30', collateral_type:null, collateral_value:null, _original:{'ประเภท':'สินเชื่อดิจิตอลส่วนบุคคล','วงเงิน':'150,000','ยอดหนี้':'90,000','C_Class':'C1','อัตราดอกเบี้ย':'13.00%','วันเริ่มสัญญา':'01/08/66','วันครบกำหนดสัญญา':'30/06/72','ประเภทหลักประกัน':'NA','ราคาประเมินหลักประกัน':'NA'} },
+      { type:'สินเชื่อบ้าน', credit_limit:80000, outstanding:12000, c_class:'C1', interest_rate:'20.00%', start_date:'2022-03-15', end_date:'2026-12-31', collateral_type:null, collateral_value:null, _original:{'ประเภท':'สินเชื่อบ้าน','วงเงิน':'80,000','ยอดหนี้':'12,000','C_Class':'C1','อัตราดอกเบี้ย':'20.00%','วันเริ่มสัญญา':'15/03/65','วันครบกำหนดสัญญา':'31/12/69','ประเภทหลักประกัน':'NA','ราคาประเมินหลักประกัน':'NA'} },
+    ],
+    acc_summary: { type:'รวมทั้งกลุ่ม', credit_limit:730000, outstanding:422000, c_class:'C1', _original:{'ประเภท':'รวมทั้งกลุ่ม','วงเงิน':'730,000','ยอดหนี้':'422,000','C_Class':'C1'} },
+    total_outstanding: 422000, total_credit_limit: 730000,
+    account_count: 3, summary_c_class: 'C1',
+    debtor_info: 'ลูกค้าชื่อ ซี รหัสลูกค้า (CIF) 1210003 อายุ 52 ปี ประกอบอาชีพข้าราชการ และเป็นลูกค้าของธนาคารมาแล้ว 60 เดือน โดยมีรายได้จากระบบอยู่ที่ 47,000 บาทต่อเดือน\n\nในด้านสถานะสินเชื่อ ลูกค้าอยู่ในกลุ่ม C1 โดยมีจำนวนวันค้างชำระสูงสุด (DPD) จากบัญชีของธนาคารอยู่ที่ 12 วัน ยอดหนี้รวมนอกธนาคารตามข้อมูล NCB ณ วันที่ 4/3/2025 อยู่ที่ 180,000 บาท และลูกค้ามีสิทธิ์เข้าร่วมโปรแกรม KhunSuu, PL_MOU\n\nสำหรับภาระผ่อนนอกธนาคาร (NCB) ในปัจจุบันอยู่ที่ประมาณ 3,000 บาทต่อเดือน',
+    debt_cause: 'ลูกค้ารายนี้มีภาระหนี้สินเชื่อส่วนบุคคลและหนี้ภายนอกธนาคารรวม 180,000 บาท ซึ่งส่งผลให้เกิดความยากลำบากในการชำระหนี้ดังสะท้อนจากสถานะค้างชำระ 12 วัน (DPD)',
+    proposed_solution: 'รวมหนี้ผ่านสินเชื่อ MOU บัญชีเลขที่ 10000005, 10000006 ยอดหนี้รวม 102,000 บาท\nค่างวดเดิม 5,100 → ใหม่ 3,200 บาท · อัตราดอกเบี้ย 6.00% · 35 งวด\nดอกเบี้ยรวม 20,151.32 → 9,388.93 บาท',
+    opinion: 'ข้อเสนอรวมหนี้ผ่านสินเชื่อ MOU แบบไม่มีหลักประกันนี้เหมาะสมกับสถานการณ์ของลูกค้า เนื่องจากลูกค้าเป็นข้าราชการ จึงมีคุณสมบัติเข้าร่วมมาตรการดังกล่าว ข้อเสนอนี้ยังช่วยลดภาระค่างวดรายเดือนลงได้อย่างมากและลดดอกเบี้ยรวมลงเกือบครึ่งหนึ่ง',
+    rendered_html: null,
+    review_status: 'ยังไม่ดำเนินการ',
+    reviewed_by: null, reviewed_at: null,
+  },
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SUPABASE API
+// ════════════════════════════════════════════════════════════════════════════
+async function fetchCases() {
+  const res = await fetch(
+    `${CFG.url}/rest/v1/debt_restructuring_cases?select=*&order=saved_at.desc`,
+    { headers: { apikey: CFG.key, Authorization: `Bearer ${CFG.key}` } }
+  );
+  if (!res.ok) throw new Error(`Supabase ${res.status}`);
+  const rows = await res.json();
+  return rows.map(r => ({
+    ...r,
+    acc_table:   typeof r.acc_table   === 'string' ? JSON.parse(r.acc_table)   : r.acc_table,
+    acc_summary: typeof r.acc_summary === 'string' ? JSON.parse(r.acc_summary) : r.acc_summary,
+  }));
+}
+
+async function patchStatus(id, status) {
+  const res = await fetch(
+    `${CFG.url}/rest/v1/debt_restructuring_cases?id=eq.${id}`,
+    {
+      method: 'PATCH',
+      headers: {
+        apikey: CFG.key, Authorization: `Bearer ${CFG.key}`,
+        'Content-Type': 'application/json', Prefer: 'return=minimal',
+      },
+      body: JSON.stringify({ review_status: status, reviewed_at: new Date().toISOString() }),
+    }
+  );
+  if (!res.ok) throw new Error(`PATCH ${res.status}`);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════════════
+let ALL = [];
+let sortField = 'saved_at', sortAsc = false;
+let current = null;
+let _activeTab = 'overview';
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LOAD
+// ════════════════════════════════════════════════════════════════════════════
+async function loadCases() {
+  document.getElementById('last-updated').textContent = 'กำลังโหลด…';
+  try {
+    ALL = USE_MOCK ? JSON.parse(JSON.stringify(MOCK)) : await fetchCases();
+  } catch (e) {
+    ALL = JSON.parse(JSON.stringify(MOCK));
+    showToast('⚠ โหลดจาก Supabase ไม่ได้ ใช้ข้อมูลตัวอย่าง');
+  }
+  document.getElementById('last-updated').textContent =
+    'อัพเดทล่าสุด: ' + new Date().toLocaleString('th-TH') +
+    (USE_MOCK ? ' (ข้อมูลตัวอย่าง)' : '');
+  populateDropdowns();
+  renderStats();
+  render();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DROPDOWNS
+// ════════════════════════════════════════════════════════════════════════════
+function populateDropdowns() {
+  const cycles  = [...new Set(ALL.map(c => c.acc_mdata).filter(Boolean))].sort().reverse();
+  const classes = [...new Set(ALL.map(c => c.summary_c_class).filter(Boolean))].sort();
+  const sel = id => document.getElementById(id);
+  sel('f-cycle').innerHTML = '<option value="">ทั้งหมด</option>' + cycles.map(v  => `<option>${v}</option>`).join('');
+  sel('f-class').innerHTML = '<option value="">ทั้งหมด</option>' + classes.map(v => `<option>${v}</option>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════════════════════════════════════════
+function renderStats() {
+  const totalDebt = ALL.reduce((s, c) => s + (c.total_outstanding || 0), 0);
+  document.getElementById('s-total').textContent = ALL.length;
+  document.getElementById('s-new').textContent   = ALL.filter(c => c.review_status === 'ยังไม่ดำเนินการ').length;
+  document.getElementById('s-done').textContent  = ALL.filter(c => c.review_status === 'ติดต่อแล้ว').length;
+  document.getElementById('s-pol').textContent   = ALL.filter(c => c.policy_compliant).length;
+  document.getElementById('s-debt').textContent  = (totalDebt / 1e6).toFixed(2);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FILTER
+// ════════════════════════════════════════════════════════════════════════════
+function getFiltered() {
+  const q   = document.getElementById('f-q').value.toLowerCase();
+  const df  = document.getElementById('f-df').value;
+  const dt  = document.getElementById('f-dt').value;
+  const cyc = document.getElementById('f-cycle').value;
+  const cls = document.getElementById('f-class').value;
+  const st  = document.getElementById('f-status').value;
+  const pol = document.getElementById('f-policy').value;
+  const dbt = document.getElementById('f-debt').value;
+
+  return ALL.filter(c => {
+    if (st  && c.review_status    !== st)  return false;
+    if (pol === '1' && !c.policy_compliant) return false;
+    if (pol === '0' &&  c.policy_compliant) return false;
+    if (cyc && c.acc_mdata        !== cyc) return false;
+    if (cls && c.summary_c_class  !== cls) return false;
+    if (df  && c.saved_at.slice(0,10) < df) return false;
+    if (dt  && c.saved_at.slice(0,10) > dt) return false;
+    if (dbt) {
+      const d = c.total_outstanding || 0;
+      if (dbt === 'lt500'   && d >= 500000)  return false;
+      if (dbt === '500to1m' && (d < 500000 || d > 1000000)) return false;
+      if (dbt === 'gt1m'    && d <= 1000000) return false;
+    }
+    if (q) {
+      const hay = [c.customer_name, c.cif, c.request_subject,
+                   c.occupation, c.session_id, c.acc_mdata,
+                   c.summary_c_class, c.request_type].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function clearFilters() {
+  ['f-q','f-df','f-dt'].forEach(id => document.getElementById(id).value = '');
+  ['f-cycle','f-class','f-status','f-policy','f-debt'].forEach(id => document.getElementById(id).value = '');
+  render();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SORT
+// ════════════════════════════════════════════════════════════════════════════
+function sortBy(f) {
+  if (sortField === f) sortAsc = !sortAsc;
+  else { sortField = f; sortAsc = false; }
+  document.querySelectorAll('thead th').forEach(th => {
+    th.classList.remove('sorted','asc');
+    if (th.getAttribute('onclick') === `sortBy('${f}')`) {
+      th.classList.add('sorted');
+      if (sortAsc) th.classList.add('asc');
+    }
+  });
+  render();
+}
+
+function doSort(rows) {
+  return [...rows].sort((a,b) => {
+    let va = a[sortField] ?? '', vb = b[sortField] ?? '';
+    if (typeof va === 'boolean') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ?  1 : -1;
+    return 0;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  RENDER TABLE
+// ════════════════════════════════════════════════════════════════════════════
+function fmtThDate(iso) {
+  if (!iso) return '—';
+  const [y,m,d] = iso.slice(0,10).split('-');
+  const mo = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
+               'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+m];
+  return `${+d} ${mo} ${+y+543}`;
+}
+
+function fmtMoney(v) {
+  if (v == null) return '—';
+  return Number(v).toLocaleString('th-TH');
+}
+
+function esc(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function render() {
+  const rows  = doSort(getFiltered());
+  const total = fmtMoney(rows.reduce((s,c) => s + (c.total_outstanding||0), 0));
+  document.getElementById('f-count').textContent =
+    `แสดง ${rows.length} / ${ALL.length} รายการ · ยอดหนี้รวม ${total} บาท`;
+  document.getElementById('foot-info').textContent =
+    `${rows.length} รายการที่แสดง · คลิกแถวเพื่อดูรายละเอียด`;
+
+  const tbody = document.getElementById('tbody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="11" class="empty-row">ไม่พบรายการที่ตรงกับเงื่อนไข</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((c, i) => {
+    const isNew  = c.review_status === 'ยังไม่ดำเนินการ';
+    const cls    = c.summary_c_class || '—';
+    const clsHtml = cls === 'C3'
+      ? `<span class="c3tag">C3</span>`
+      : `<span style="font-weight:700">${esc(cls)}</span>`;
+    const polBadge = c.policy_compliant
+      ? `<span class="badge bok" style="font-size:11px;padding:2px 7px">✓ สอดคล้อง</span>`
+      : `<span class="badge bwn" style="font-size:11px;padding:2px 7px">⚠ ตรวจสอบ</span>`;
+    const stBadge = isNew
+      ? `<span class="badge bn"><span class="bdot bdot-n"></span>ยังไม่ดำเนินการ</span>`
+      : `<span class="badge bd"><span class="bdot bdot-d"></span>ติดต่อแล้ว</span>`;
+    return `<tr class="${isNew?'st-new':'st-done'}" onclick="openDetail(${c.id})">
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td style="font-weight:700;color:var(--ink)">${esc(c.customer_name)}</td>
+      <td>${esc(c.request_subject)}</td>
+      <td style="text-align:right;font-weight:600">${fmtMoney(c.total_outstanding)}</td>
+      <td style="text-align:center">${clsHtml}</td>
+      <td class="hide-sm">${esc(c.occupation)}</td>
+      <td style="color:var(--muted);font-size:13px">${fmtThDate(c.saved_at)}</td>
+      <td class="hide-sm" style="color:var(--muted);font-size:13px">${esc(c.acc_mdata||'—')}</td>
+      <td>${polBadge}</td>
+      <td style="text-align:center;font-weight:700;color:var(--ktb-d)">${c.account_count||0}</td>
+      <td>${stBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DETAIL — tab switching
+// ════════════════════════════════════════════════════════════════════════════
+function switchDTab(btn) {
+  document.querySelectorAll('.dtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  _activeTab = btn.dataset.dtab;
+  renderDTabContent(_activeTab);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DETAIL — stats + meta strips
+// ════════════════════════════════════════════════════════════════════════════
+function renderDetailStrips(c) {
+  const s  = c.acc_summary || {};
+  const so = s._original  || {};
+
+  document.getElementById('d-stats').innerHTML = `
+    <div class="dst">
+      <div class="dst-label">วงเงินรวม (บาท)</div>
+      <div class="dst-value">${s.credit_limit!=null ? fmtMoney(s.credit_limit) : esc(so['วงเงิน']||'—')}</div>
+    </div>
+    <div class="dst">
+      <div class="dst-label">ยอดหนี้รวม (บาท)</div>
+      <div class="dst-value">${s.outstanding!=null ? fmtMoney(s.outstanding) : esc(so['ยอดหนี้']||'—')}</div>
+    </div>
+    <div class="dst">
+      <div class="dst-label">จำนวนบัญชี</div>
+      <div class="dst-value">${Array.isArray(c.acc_table) ? c.acc_table.length : 0}</div>
+    </div>
+    <div class="dst">
+      <div class="dst-label">C-Class รวม</div>
+      <div class="dst-value">${c.summary_c_class==='C3'
+        ? '<span class="c3tag" style="font-size:15px;padding:3px 8px">C3</span>'
+        : esc(c.summary_c_class || so['C_Class'] || '—')}</div>
+    </div>`;
+
+  document.getElementById('d-metastrip').innerHTML = [
+    ['CIF',            c.cif],
+    ['อาชีพ',          c.occupation],
+    ['รอบบัญชี',       c.acc_mdata],
+    ['วันที่รับเรื่อง', fmtThDate(c.received_date)],
+    ['ประเภทเรื่อง',   c.request_type],
+    ['Session ID',     c.session_id],
+  ].map(([label, val]) => `
+    <div class="dmi">
+      <div class="dmi-label">${label}</div>
+      <div class="dmi-value">${esc(val||'—')}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DETAIL — inline tab content rendering
+// ════════════════════════════════════════════════════════════════════════════
+function renderDTabContent(tab) {
+  const c = current;
+  if (!c) return;
+  const el  = document.getElementById('d-tabcontent');
+  const acc = Array.isArray(c.acc_table) ? c.acc_table : [];
+  const s   = c.acc_summary || {};
+  const so  = s._original   || {};
+  const nl2br = t => esc(t||'—').replace(/\n/g,'<br>');
+
+  if (tab === 'overview') {
+    const REQUEST_TYPES = [
+      'ขอลดอัตราดอกเบี้ย','ขอลดดอกเบี้ยผิดนัด (Late Charge)',
+      'ขอเปลี่ยนแปลงเงื่อนไขการผ่อนชำระ','ขอชำระหนี้เสร็จสิ้น',
+      'ขอโอนหลักทรัพย์ชำระหนี้','อื่นๆ',
+    ];
+    const chips = REQUEST_TYPES.map(t => {
+      const on = c.request_type === t;
+      return `<div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+        border-radius:999px;border:1px solid ${on?'var(--ktb)':'var(--line)'};
+        background:${on?'var(--ktb-bg)':'var(--panel)'};
+        color:${on?'var(--ktb-d)':'var(--text)'};font-size:13.5px;font-weight:${on?'700':'400'}"
+        >${on?'● ':'○ '}${esc(t)}</div>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="dcard">
+        <div class="dcard-head">ประเภทเรื่องที่ขอ</div>
+        <div class="dcard-body"><div style="display:flex;flex-wrap:wrap;gap:8px">${chips}</div></div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-head">เรื่องที่ขอ</div>
+        <div class="dcard-body" style="font-size:16px;font-weight:700;color:var(--ink)">${esc(c.request_subject||'—')}</div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-head">วัตถุประสงค์ / เหตุผลของคำขอ</div>
+        <div class="dcard-body" style="font-size:14.5px;line-height:1.65;color:var(--text)">${nl2br(c.request_objective)}</div>
+      </div>`;
+
+  } else if (tab === 'customer') {
+    el.innerHTML = `
+      <div class="dcard">
+        <div class="dcard-head">ข้อมูลลูกค้า</div>
+        <div class="dcard-body">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px 32px">
+            ${[['ชื่อลูกค้า',c.customer_name,true],
+               ['ประเภทธุรกิจ / อาชีพ',c.occupation,false],
+               ['รหัสประจำตัวลูกค้า (CIF)',c.cif,false],
+               ['หมายเลขบัตรประชาชน',c.citizen_id||'NA',false]
+              ].map(([l,v,bold])=>`
+              <div>
+                <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.2px;margin-bottom:4px">${l}</div>
+                <div style="font-size:15px;color:var(--ink);${bold?'font-weight:700':''}">${esc(v||'—')}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+
+  } else if (tab === 'loans') {
+    const thStyle = (align) =>
+      `padding:9px 10px;border-bottom:2px solid var(--line2);font-size:12px;font-weight:700;color:var(--ktb-d);text-align:${align};background:var(--ktb-bg);white-space:nowrap`;
+    const accRows = acc.map((a, i) => {
+      const orig = a._original || {};
+      const cls  = a.c_class || orig['C_Class'] || '—';
+      return `<tr style="border-bottom:1px solid var(--line)">
+        <td style="padding:9px 10px;text-align:center;color:var(--muted);font-size:13px">${i+1}</td>
+        <td style="padding:9px 10px;font-size:13px">${esc(a.type||orig['ประเภท']||'—')}</td>
+        <td style="padding:9px 10px;text-align:right;font-size:13px">${a.credit_limit!=null?fmtMoney(a.credit_limit):esc(orig['วงเงิน']||'—')}</td>
+        <td style="padding:9px 10px;text-align:right;font-size:13px;font-weight:600;color:var(--ink)">${a.outstanding!=null?fmtMoney(a.outstanding):esc(orig['ยอดหนี้']||'—')}</td>
+        <td style="padding:9px 10px;text-align:center;font-size:13px">${cls==='C3'?`<span class="c3tag">C3</span>`:esc(cls)}</td>
+        <td style="padding:9px 10px;text-align:center;font-size:13px">${esc(a.interest_rate||orig['อัตราดอกเบี้ย']||'—')}</td>
+        <td style="padding:9px 10px;text-align:center;font-size:13px">${a.start_date?fmtThDate(a.start_date):esc(orig['วันเริ่มสัญญา']||'—')}</td>
+        <td style="padding:9px 10px;text-align:center;font-size:13px">${a.end_date?fmtThDate(a.end_date):esc(orig['วันครบกำหนดสัญญา']||'—')}</td>
+        <td style="padding:9px 10px;text-align:center;font-size:13px">${esc(a.collateral_type||orig['ประเภทหลักประกัน']||'—')}</td>
+        <td style="padding:9px 10px;text-align:right;font-size:13px">${esc(a.collateral_value||orig['ราคาประเมินหลักประกัน']||'—')}</td>
+      </tr>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="dcard">
+        <div class="dcard-head">
+          รายละเอียดสินเชื่อและหลักประกัน
+          <span class="dcard-count">${acc.length} บัญชี</span>
+        </div>
+        <div class="dcard-body" style="padding:0;overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;min-width:820px">
+            <thead><tr>
+              <th style="${thStyle('center')}">#</th>
+              <th style="${thStyle('left')}">ประเภท</th>
+              <th style="${thStyle('right')}">วงเงิน</th>
+              <th style="${thStyle('right')}">ยอดหนี้</th>
+              <th style="${thStyle('center')}">C-Class</th>
+              <th style="${thStyle('center')}">อัตรา ดบ.</th>
+              <th style="${thStyle('center')}">วันเริ่มสัญญา</th>
+              <th style="${thStyle('center')}">วันครบกำหนด</th>
+              <th style="${thStyle('center')}">หลักประกัน</th>
+              <th style="${thStyle('right')}">ราคาประเมิน</th>
+            </tr></thead>
+            <tbody>
+              ${accRows}
+              <tr style="background:var(--ktb-bg);font-weight:700;border-top:2px solid var(--line2)">
+                <td colspan="2" style="padding:9px 10px;font-size:13px;color:var(--ink)">รวมทั้งกลุ่ม</td>
+                <td style="padding:9px 10px;text-align:right;font-size:13px;color:var(--ink)">${s.credit_limit!=null?fmtMoney(s.credit_limit):esc(so['วงเงิน']||'—')}</td>
+                <td style="padding:9px 10px;text-align:right;font-size:13px;color:var(--ink)">${s.outstanding!=null?fmtMoney(s.outstanding):esc(so['ยอดหนี้']||'—')}</td>
+                <td style="padding:9px 10px;text-align:center;font-size:13px;color:var(--ink)">${esc(s.c_class||so['C_Class']||'—')}</td>
+                <td colspan="5" style="padding:9px 10px"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+  } else if (tab === 'reasons') {
+    el.innerHTML = `
+      <div class="dcard">
+        <div class="dcard-head">ข้อมูลลูกหนี้</div>
+        <div class="dcard-body" style="font-size:14.5px;line-height:1.65;color:var(--text)">${nl2br(c.debtor_info)}</div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-head">สาเหตุและปัญหา</div>
+        <div class="dcard-body" style="font-size:14.5px;line-height:1.65;color:var(--text)">${nl2br(c.debt_cause)}</div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-head">แนวทางที่เสนอ</div>
+        <div class="dcard-body" style="font-size:14.5px;line-height:1.65;color:var(--text)">${nl2br(c.proposed_solution)}</div>
+      </div>`;
+
+  } else if (tab === 'opinion') {
+    const ok = !!c.policy_compliant;
+    el.innerHTML = `
+      <div class="dcard">
+        <div class="dcard-head">สถานะนโยบายสินเชื่อ</div>
+        <div class="dcard-body">
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;
+            border-radius:8px;font-size:14.5px;font-weight:700;
+            background:${ok?'var(--ok-bg)':'var(--warn-bg)'};
+            color:${ok?'var(--ok-tx)':'var(--warn-tx)'};
+            border:1px solid ${ok?'var(--ok-bd)':'var(--warn-bd)'}">
+            ${ok?'✓ สอดคล้องตามนโยบายสินเชื่อ':'⚠ ต้องตรวจสอบเพิ่มเติม'}
+          </div>
+        </div>
+      </div>
+      <div class="dcard">
+        <div class="dcard-head">ความเห็นประกอบการพิจารณา</div>
+        <div class="dcard-body" style="font-size:14.5px;line-height:1.65;color:var(--text)">${nl2br(c.opinion)}</div>
+      </div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  OPEN / CLOSE DETAIL
+// ════════════════════════════════════════════════════════════════════════════
+function openDetail(id) {
+  current = ALL.find(c => c.id === id);
+  if (!current) return;
+
+  document.getElementById('d-name').textContent = current.customer_name || '—';
+  document.getElementById('d-meta').textContent =
+    `CIF: ${current.cif||'—'}  ·  ${current.request_subject||'—'}`;
+
+  renderDetailStrips(current);
+  refreshDetailHeader();
+
+  _activeTab = 'overview';
+  document.querySelectorAll('.dtab').forEach(t =>
+    t.classList.toggle('active', t.dataset.dtab === 'overview'));
+  renderDTabContent('overview');
+
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function refreshDetailHeader() {
+  if (!current) return;
+  const isNew = current.review_status === 'ยังไม่ดำเนินการ';
+  const badge = document.getElementById('d-badge');
+  badge.textContent = current.review_status;
+  badge.className   = 'badge ' + (isNew ? 'bn' : 'bd');
+  const btn = document.getElementById('d-toggle');
+  btn.textContent = isNew ? '✓ ติดต่อแล้ว' : '↩ ยังไม่ดำเนินการ';
+  btn.className   = 'tbtn ' + (isNew ? 'tbtn-done' : 'tbtn-reset');
+}
+
+function closeDetail() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  current = null;
+}
+
+function showList() { closeDetail(); }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  STATUS TOGGLE
+// ════════════════════════════════════════════════════════════════════════════
+async function toggleStatus() {
+  if (!current) return;
+  const next = current.review_status === 'ยังไม่ดำเนินการ' ? 'ติดต่อแล้ว' : 'ยังไม่ดำเนินการ';
+  try {
+    if (!USE_MOCK) await patchStatus(current.id, next);
+    current.review_status = next;
+    const row = ALL.find(c => c.id === current.id);
+    if (row) row.review_status = next;
+    refreshDetailHeader();
+    renderStats();
+    render();
+    showToast(next === 'ติดต่อแล้ว' ? '✓ บันทึก: ติดต่อแล้ว' : '↩ รีเซ็ต: ยังไม่ดำเนินการ');
+  } catch (e) {
+    showToast('⚠ บันทึกไม่สำเร็จ: ' + e.message);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  TOAST / KEYBOARD
+// ════════════════════════════════════════════════════════════════════════════
+let _toastT;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+
+// ════════════════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════════════════
+loadCases();
+</script>
+</body>
+</html>
