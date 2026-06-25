@@ -43,11 +43,11 @@ body{font-family:"TH Sarabun New","Sarabun","Noto Sans Thai",Tahoma,Arial,sans-s
 .rbtn:hover{background:var(--soft);}
 
 /* ── STAT CARDS ── */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
 .sc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
   padding:12px 16px;border-top:3px solid transparent;}
 .sc.c1{border-top-color:var(--ktb);}   .sc.c2{border-top-color:#F0A500;}
-.sc.c3{border-top-color:#1A9E5A;}      .sc.c4{border-top-color:#8B5CF6;}
+.sc.c3{border-top-color:#1A56DB;}      .sc.c4{border-top-color:#1A9E5A;}
 .sc.c5{border-top-color:#E05043;}
 .sl{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.2px;}
 .sv{font-size:24px;font-weight:700;color:var(--ink);margin:2px 0 1px;}
@@ -88,8 +88,10 @@ tbody td{padding:9px 10px;border-bottom:1px solid var(--line);font-size:14px;
 tbody tr:last-child td{border-bottom:none;}
 tbody tr{cursor:pointer;transition:background .1s;}
 tbody tr:hover td{background:var(--soft);}
-tbody tr.st-new td:first-child{border-left:4px solid #F0A500;padding-left:6px;}
-tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
+tbody tr.st-reviewing td:first-child{border-left:4px solid #F0A500;padding-left:6px;}
+tbody tr.st-docs td:first-child{border-left:4px solid #1A56DB;padding-left:6px;}
+tbody tr.st-approved td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
+tbody tr.st-rejected td:first-child{border-left:4px solid #E05043;padding-left:6px;}
 .empty-row{text-align:center;padding:44px;color:var(--muted);font-size:16px;}
 
 /* ── BADGES ── */
@@ -99,6 +101,8 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
 .bd{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-bd);}
 .bok{background:var(--ok-bg);color:var(--ok-tx);border:1px solid var(--ok-bd);}
 .bwn{background:var(--warn-bg);color:var(--warn-tx);border:1px solid var(--warn-bd);}
+.binfo{background:#EBF4FF;color:#1A56DB;border:1px solid #76A9FA;}
+.bdng{background:var(--c3-bg);color:var(--c3-tx);border:1px solid var(--c3-bd);}
 .bdot{width:6px;height:6px;border-radius:50%;}
 .bdot-n{background:#F0A500;} .bdot-d{background:#1A9E5A;}
 .c3tag{display:inline-block;background:var(--c3-bg);color:var(--c3-tx);
@@ -199,6 +203,33 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
 .pag-btn:disabled{color:var(--muted);cursor:default;opacity:.5;}
 .pag-page{font-size:13px;color:var(--ink);font-weight:600;min-width:80px;text-align:center;}
 
+/* ── STATUS SELECT ── */
+.status-sel{padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:8px;
+  background:rgba(255,255,255,.12);color:#fff;font-size:13px;font-weight:700;
+  font-family:inherit;cursor:pointer;outline:none;transition:background .12s;}
+.status-sel:hover{background:rgba(255,255,255,.22);}
+.status-sel option{color:var(--ink);background:var(--panel);font-weight:600;}
+
+/* ── DOCS MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.45);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--panel);border-radius:12px;padding:28px;
+  width:480px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.22);}
+.modal-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.modal-sub{font-size:14px;color:var(--muted);margin-bottom:18px;}
+.modal-textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:12px;
+  font-size:15px;font-family:inherit;color:var(--ink);resize:vertical;min-height:120px;
+  outline:none;transition:border .12s;}
+.modal-textarea:focus{border-color:var(--ktb);}
+.modal-btns{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
+.mbtn{padding:8px 20px;border-radius:8px;font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer;border:none;transition:background .12s;}
+.mbtn-cancel{background:var(--bg);color:var(--muted);border:1px solid var(--line)!important;}
+.mbtn-cancel:hover{background:var(--soft);}
+.mbtn-confirm{background:var(--ktb-d);color:#fff;}
+.mbtn-confirm:hover{background:var(--ktb);}
+
 @media(max-width:860px){
   .stats{grid-template-columns:repeat(3,1fr);}
   .dstats{grid-template-columns:repeat(2,1fr);}
@@ -229,9 +260,10 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
   <!-- STAT CARDS -->
   <div class="stats">
     <div class="sc c1"><div class="sl">คำขอทั้งหมด</div><div class="sv" id="s-total">—</div><div class="sh">รายการในระบบ</div></div>
-    <div class="sc c2"><div class="sl">ยังไม่ดำเนินการ</div><div class="sv" id="s-new">—</div><div class="sh">รอการติดต่อ</div></div>
-    <div class="sc c3"><div class="sl">ติดต่อแล้ว</div><div class="sv" id="s-done">—</div><div class="sh">ดำเนินการแล้ว</div></div>
-    <div class="sc c4"><div class="sl">ยอดหนี้รวม (ล้านบาท)</div><div class="sv" id="s-debt">—</div><div class="sh"></div></div>
+    <div class="sc c2"><div class="sl">อยู่ระหว่างตรวจสอบ</div><div class="sv" id="s-reviewing">—</div><div class="sh">รอพิจารณา</div></div>
+    <div class="sc c3"><div class="sl">ขอเอกสารเพิ่มเติม</div><div class="sv" id="s-docs">—</div><div class="sh">รอเอกสาร</div></div>
+    <div class="sc c4"><div class="sl">อนุมัติ</div><div class="sv" id="s-approved">—</div><div class="sh">ผ่านการพิจารณา</div></div>
+    <div class="sc c5"><div class="sl">ไม่อนุมัติ</div><div class="sv" id="s-rejected">—</div><div class="sh">ไม่ผ่านการพิจารณา</div></div>
   </div>
 
   <!-- FILTERS -->
@@ -260,8 +292,10 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
       <label>สถานะ</label>
       <select id="f-status" onchange="filterChange()">
         <option value="">ทั้งหมด</option>
-        <option value="ยังไม่ดำเนินการ">ยังไม่ดำเนินการ</option>
-        <option value="ติดต่อแล้ว">ติดต่อแล้ว</option>
+        <option value="อยู่ระหว่างตรวจสอบ">อยู่ระหว่างตรวจสอบ</option>
+        <option value="ขอเอกสารเพิ่มเติม">ขอเอกสารเพิ่มเติม</option>
+        <option value="อนุมัติ">อนุมัติ</option>
+        <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
       </select>
     </div>
     <div class="fg">
@@ -329,7 +363,12 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
       </div>
       <div class="dhead-r">
         <span class="badge" id="d-badge"></span>
-        <button class="tbtn" id="d-toggle" onclick="toggleStatus()"></button>
+        <select class="status-sel" id="d-status-sel" onchange="onStatusSelChange(this)">
+          <option value="อยู่ระหว่างตรวจสอบ">อยู่ระหว่างตรวจสอบ</option>
+          <option value="ขอเอกสารเพิ่มเติม">ขอเอกสารเพิ่มเติม</option>
+          <option value="อนุมัติ">อนุมัติ</option>
+          <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+        </select>
       </div>
     </div>
 
@@ -351,6 +390,19 @@ tbody tr.st-done td:first-child{border-left:4px solid #1A9E5A;padding-left:6px;}
 
       <!-- scrollable tab content -->
       <div class="dtab-body" id="d-tabcontent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCS MODAL -->
+<div class="modal-overlay" id="docs-modal" onclick="modalOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">ขอเอกสารเพิ่มเติม</div>
+    <div class="modal-sub">กรุณาระบุเอกสารหรือข้อมูลที่ต้องการจากลูกค้า</div>
+    <textarea class="modal-textarea" id="docs-text" placeholder="ระบุเอกสารที่ต้องการ…"></textarea>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="cancelDocsModal()">ยกเลิก</button>
+      <button class="mbtn mbtn-confirm" onclick="confirmDocsModal()">ยืนยัน</button>
     </div>
   </div>
 </div>
@@ -400,7 +452,8 @@ const MOCK = [
     proposed_solution: 'รวมหนี้ผ่านสินเชื่อ MOU บัญชีเลขที่ 10000005, 10000006 ยอดหนี้รวม 102,000 บาท\nค่างวดเดิม 5,100 → ใหม่ 3,200 บาท · อัตราดอกเบี้ย 6.00% · 35 งวด\nดอกเบี้ยรวม 20,151.32 → 9,388.93 บาท',
     opinion: 'ข้อเสนอรวมหนี้ผ่านสินเชื่อ MOU แบบไม่มีหลักประกันนี้เหมาะสมกับสถานการณ์ของลูกค้า เนื่องจากลูกค้าเป็นข้าราชการ จึงมีคุณสมบัติเข้าร่วมมาตรการดังกล่าว ข้อเสนอนี้ยังช่วยลดภาระค่างวดรายเดือนลงได้อย่างมากและลดดอกเบี้ยรวมลงเกือบครึ่งหนึ่ง',
     rendered_html: null,
-    review_status: 'ยังไม่ดำเนินการ',
+    review_status: 'อยู่ระหว่างตรวจสอบ',
+    staff_request_text: null,
     reviewed_by: null, reviewed_at: null,
   },
 ];
@@ -422,7 +475,9 @@ async function fetchCases() {
   }));
 }
 
-async function patchStatus(id, status) {
+async function patchStatus(id, status, requestText) {
+  const body = { review_status: status, reviewed_at: new Date().toISOString() };
+  if (requestText !== undefined) body.staff_request_text = requestText;
   const res = await fetch(
     `${CFG.url}/rest/v1/debt_restructuring_cases?id=eq.${id}`,
     {
@@ -431,11 +486,27 @@ async function patchStatus(id, status) {
         apikey: CFG.key, Authorization: `Bearer ${CFG.key}`,
         'Content-Type': 'application/json', Prefer: 'return=minimal',
       },
-      body: JSON.stringify({ review_status: status, reviewed_at: new Date().toISOString() }),
+      body: JSON.stringify(body),
     }
   );
   if (!res.ok) throw new Error(`PATCH ${res.status}`);
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  STATUS HELPERS
+// ════════════════════════════════════════════════════════════════════════════
+const STATUS_BADGE = {
+  'อยู่ระหว่างตรวจสอบ': 'bwn',
+  'ขอเอกสารเพิ่มเติม':  'binfo',
+  'อนุมัติ':            'bd',
+  'ไม่อนุมัติ':         'bdng',
+};
+const STATUS_ROW = {
+  'อยู่ระหว่างตรวจสอบ': 'st-reviewing',
+  'ขอเอกสารเพิ่มเติม':  'st-docs',
+  'อนุมัติ':            'st-approved',
+  'ไม่อนุมัติ':         'st-rejected',
+};
 
 // ════════════════════════════════════════════════════════════════════════════
 //  STATE
@@ -483,11 +554,11 @@ function populateDropdowns() {
 //  STATS
 // ════════════════════════════════════════════════════════════════════════════
 function renderStats() {
-  const totalDebt = ALL.reduce((s, c) => s + (c.total_outstanding || 0), 0);
-  document.getElementById('s-total').textContent = ALL.length;
-  document.getElementById('s-new').textContent   = ALL.filter(c => c.review_status === 'ยังไม่ดำเนินการ').length;
-  document.getElementById('s-done').textContent  = ALL.filter(c => c.review_status === 'ติดต่อแล้ว').length;
-  document.getElementById('s-debt').textContent  = (totalDebt / 1e6).toFixed(2);
+  document.getElementById('s-total').textContent     = ALL.length;
+  document.getElementById('s-reviewing').textContent = ALL.filter(c => c.review_status === 'อยู่ระหว่างตรวจสอบ').length;
+  document.getElementById('s-docs').textContent      = ALL.filter(c => c.review_status === 'ขอเอกสารเพิ่มเติม').length;
+  document.getElementById('s-approved').textContent  = ALL.filter(c => c.review_status === 'อนุมัติ').length;
+  document.getElementById('s-rejected').textContent  = ALL.filter(c => c.review_status === 'ไม่อนุมัติ').length;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -601,7 +672,9 @@ function render() {
 
   tbody.innerHTML = pageRows.map((c, i) => {
     const globalIdx = PAGE * PAGE_SIZE + i + 1;
-    const isNew  = c.review_status === 'ยังไม่ดำเนินการ';
+    const st      = c.review_status || 'อยู่ระหว่างตรวจสอบ';
+    const rowCls  = STATUS_ROW[st]   || 'st-reviewing';
+    const bdgCls  = STATUS_BADGE[st] || 'bwn';
     const cls    = c.summary_c_class || '—';
     const clsHtml = cls === 'C3'
       ? `<span class="c3tag">C3</span>`
@@ -609,10 +682,8 @@ function render() {
     const polBadge = c.policy_compliant
       ? `<span class="badge bok" style="font-size:11px;padding:2px 7px">✓ สอดคล้อง</span>`
       : `<span class="badge bwn" style="font-size:11px;padding:2px 7px">⚠ ตรวจสอบ</span>`;
-    const stBadge = isNew
-      ? `<span class="badge bn"><span class="bdot bdot-n"></span>ยังไม่ดำเนินการ</span>`
-      : `<span class="badge bd"><span class="bdot bdot-d"></span>ติดต่อแล้ว</span>`;
-    return `<tr class="${isNew?'st-new':'st-done'}" onclick="openDetail(${c.id})">
+    const stBadge = `<span class="badge ${bdgCls}">${esc(st)}</span>`;
+    return `<tr class="${rowCls}" onclick="openDetail(${c.id})">
       <td style="color:var(--muted);font-size:12px">${globalIdx}</td>
       <td style="font-weight:700;color:var(--ink)">${esc(c.customer_name)}</td>
       <td style="white-space:normal;font-size:12px;line-height:1.4">${esc(c.request_subject)}</td>
@@ -871,13 +942,11 @@ function openDetail(id) {
 
 function refreshDetailHeader() {
   if (!current) return;
-  const isNew = current.review_status === 'ยังไม่ดำเนินการ';
+  const st = current.review_status || 'อยู่ระหว่างตรวจสอบ';
   const badge = document.getElementById('d-badge');
-  badge.textContent = current.review_status;
-  badge.className   = 'badge ' + (isNew ? 'bn' : 'bd');
-  const btn = document.getElementById('d-toggle');
-  btn.textContent = isNew ? '✓ ติดต่อแล้ว' : '↩ ยังไม่ดำเนินการ';
-  btn.className   = 'tbtn ' + (isNew ? 'tbtn-done' : 'tbtn-reset');
+  badge.textContent = st;
+  badge.className   = 'badge ' + (STATUS_BADGE[st] || 'bwn');
+  document.getElementById('d-status-sel').value = st;
 }
 
 function closeDetail() {
@@ -889,23 +958,54 @@ function closeDetail() {
 function showList() { closeDetail(); }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  STATUS TOGGLE
+//  STATUS CHANGE
 // ════════════════════════════════════════════════════════════════════════════
-async function toggleStatus() {
+function onStatusSelChange(sel) {
+  const next = sel.value;
+  if (!current || next === current.review_status) return;
+  if (next === 'ขอเอกสารเพิ่มเติม') {
+    sel.value = current.review_status;
+    document.getElementById('docs-text').value = current.staff_request_text || '';
+    document.getElementById('docs-modal').classList.add('open');
+  } else {
+    applyStatus(next, undefined);
+  }
+}
+
+async function applyStatus(status, requestText) {
   if (!current) return;
-  const next = current.review_status === 'ยังไม่ดำเนินการ' ? 'ติดต่อแล้ว' : 'ยังไม่ดำเนินการ';
   try {
-    if (!USE_MOCK) await patchStatus(current.id, next);
-    current.review_status = next;
+    if (!USE_MOCK) await patchStatus(current.id, status, requestText);
+    current.review_status = status;
+    if (requestText !== undefined) current.staff_request_text = requestText;
     const row = ALL.find(c => c.id === current.id);
-    if (row) row.review_status = next;
+    if (row) {
+      row.review_status = status;
+      if (requestText !== undefined) row.staff_request_text = requestText;
+    }
     refreshDetailHeader();
     renderStats();
     render();
-    showToast(next === 'ติดต่อแล้ว' ? '✓ บันทึก: ติดต่อแล้ว' : '↩ รีเซ็ต: ยังไม่ดำเนินการ');
+    showToast('✓ บันทึกสถานะ: ' + status);
   } catch (e) {
     showToast('⚠ บันทึกไม่สำเร็จ: ' + e.message);
   }
+}
+
+function cancelDocsModal() {
+  document.getElementById('docs-modal').classList.remove('open');
+}
+
+function confirmDocsModal() {
+  const text = document.getElementById('docs-text').value.trim();
+  if (!text) { showToast('⚠ กรุณาระบุข้อความ'); return; }
+  cancelDocsModal();
+  document.getElementById('d-status-sel').value = 'ขอเอกสารเพิ่มเติม';
+  applyStatus('ขอเอกสารเพิ่มเติม', text);
+}
+
+function modalOverlayClick(e) {
+  if (e.target === e.currentTarget) cancelDocsModal();
 }
 
 // ════════════════════════════════════════════════════════════════════════════
